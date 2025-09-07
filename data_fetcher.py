@@ -14,8 +14,13 @@ Usage:
 """
 
 import requests
+import os
+from dotenv import load_dotenv
 
-API_KEY = "vhsMl65OlbqlcLampKsQNA==NITMWEkASilQuoif"
+load_dotenv()
+
+
+API_KEY = os.getenv("API_KEY")
 REQUEST_URL = f"https://api.api-ninjas.com/v1/animals?name="
 HEADERS = {"X-Api-Key": API_KEY}
 
