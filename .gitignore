@@ -1,0 +1,11 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs, temp files, test scripts
+*.log
+sandbox/
+animals.html
