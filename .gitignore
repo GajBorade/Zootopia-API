@@ -9,3 +9,6 @@ __pycache__/
 *.log
 sandbox/
 animals.html
+
+# sensitive data
+.env
