@@ -1,15 +1,46 @@
-import json
+import requests
 
+API_KEY = "vhsMl65OlbqlcLampKsQNA==NITMWEkASilQuoif"
+REQUEST_URL = f"https://api.api-ninjas.com/v1/animals?name="
+HEADERS = {"X-Api-Key": API_KEY}
 
-def load_data(file_path):
+def load_data(animal_name):
     """
-    Loads data from json file
+    loads the data from the api
 
-    :param file_path: Path to json file
-    :return: list of nested dictionaries representing data
+    :param animal_name: name of the animal
+    :return:list of nested dictionaries representing animal data
     """
-    with open(file_path, "r", encoding="utf-8") as handle:
-        return json.load(handle)
+    res = requests.get(REQUEST_URL + animal_name, headers=HEADERS)
+    if res.status_code != 200:
+        print(f"Request failed with status code {res.status_code}")
+    else:
+        return res.json()
+    return []
+
+
+def get_animal_data(default_animal="fox", max_attempts=3):
+    """
+    Prompts the user to enter an animal name and fetches data from the API.
+    After max_attempts invalid entries, uses the default animal.
+
+    :param default_animal: Animal to use if user fails to provide valid input.
+    :param max_attempts: Number of attempts allowed before using default.
+    :return: list of dictionaries containing animal data
+    """
+    attempts = 0
+    while attempts < max_attempts:
+        animal_name = input("Enter animal name: ").strip().lower()
+        animals_data = load_data(animal_name)  # Call existing API function
+
+        if animals_data:  # If the API returned a non-empty list
+            return animals_data
+        else:
+            print(f"No data found for '{animal_name}'. Please try another animal.\n")
+            attempts += 1
+
+    print(f"No valid input received after {max_attempts} attempts. Using default: '{default_animal}'.\n")
+    return load_data(default_animal)
 
 
 # 1. Read the contents of the template, animals_template.html
@@ -98,9 +129,12 @@ def main():
 
     :return: None
     """
-    # Load animal data from json file
-    filename = "animals_data.json"
-    animals_data = load_data(filename)
+    # Load animal data from api ninjas
+    animals_data = get_animal_data()
+
+    #  Load animal data from json file
+    # filename = "animals_data.json"
+    # animals_data = load_data(filename)
 
     # Read HTML template
     animals_template_path = "animals_template.html"
