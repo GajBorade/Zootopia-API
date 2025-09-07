@@ -4,6 +4,7 @@ API_KEY = "vhsMl65OlbqlcLampKsQNA==NITMWEkASilQuoif"
 REQUEST_URL = f"https://api.api-ninjas.com/v1/animals?name="
 HEADERS = {"X-Api-Key": API_KEY}
 
+
 def load_data(animal_name):
     """
     loads the data from the api
@@ -19,28 +20,17 @@ def load_data(animal_name):
     return []
 
 
-def get_animal_data(default_animal="fox", max_attempts=3):
+def get_animal_data():
     """
-    Prompts the user to enter an animal name and fetches data from the API.
-    After max_attempts invalid entries, uses the default animal.
+    Prompts the user to enter an animal name and fetches data from the API once.
 
-    :param default_animal: Animal to use if user fails to provide valid input.
-    :param max_attempts: Number of attempts allowed before using default.
+    This function does not attempt retries or provide a default animal.
+    The returned list may be empty if the API does not find the animal.
     :return: list of dictionaries containing animal data
     """
-    attempts = 0
-    while attempts < max_attempts:
-        animal_name = input("Enter animal name: ").strip().lower()
-        animals_data = load_data(animal_name)  # Call existing API function
-
-        if animals_data:  # If the API returned a non-empty list
-            return animals_data
-        else:
-            print(f"No data found for '{animal_name}'. Please try another animal.\n")
-            attempts += 1
-
-    print(f"No valid input received after {max_attempts} attempts. Using default: '{default_animal}'.\n")
-    return load_data(default_animal)
+    animal_name = input("Enter animal name: ").strip().lower()
+    animals_data = load_data(animal_name)
+    return animal_name, animals_data
 
 
 # 1. Read the contents of the template, animals_template.html
@@ -121,7 +111,7 @@ def write_html_template(html_data):
 def main():
     """
     Controls the flow of the program:
-    - Loads animal data from JSON
+    - Loads animal data from response API
     - Prints animals data to console
     - Reads HTML template
     - Serializes animal data into HTML list items
@@ -130,21 +120,21 @@ def main():
     :return: None
     """
     # Load animal data from api ninjas
-    animals_data = get_animal_data()
-
-    #  Load animal data from json file
-    # filename = "animals_data.json"
-    # animals_data = load_data(filename)
+    animals_name, animals_data = get_animal_data()
 
     # Read HTML template
     animals_template_path = "animals_template.html"
     animals_template_html = read_html_template(animals_template_path)
 
-    # Step 3: Replace __REPLACE_ANIMALS_INFO__ with the generated string
-    # to serialize animals into HTML
-    final_html = animals_template_html.replace(
-        "__REPLACE_ANIMALS_INFO__", serialize_animals_data(animals_data)
-    )
+    if animals_data:
+        final_html = animals_template_html.replace(
+            "__REPLACE_ANIMALS_INFO__", serialize_animals_data(animals_data)
+        )
+    else:
+        final_html = animals_template_html.replace(
+            "__REPLACE_ANIMALS_INFO__",
+            f'<h2>The animal "{animals_name}" does not exist.</h2>',
+        )
 
     # Write final HTML to file
     write_html_template(final_html)
